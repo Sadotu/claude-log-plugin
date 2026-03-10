@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
-SKILLS_SRC="$(cd "$(dirname "$0")/skills" && pwd)"
-SKILLS_DST="$HOME/.claude/skills"
+COMMANDS_SRC="$(cd "$(dirname "$0")/commands/log" && pwd)"
+COMMANDS_DST="$HOME/.claude/commands/log"
 LOG_DIR="$HOME/.claude/log"
 CLAUDE_MD="$HOME/.claude/CLAUDE.md"
 SESSION_MARKER="# claude-log-plugin: session-start"
@@ -11,10 +11,16 @@ At the start of each new session, if a file named `BACKLOG.md` exists in the cur
 
 echo "Installing claude-log-plugin..."
 
-# Copy skills
-mkdir -p "$SKILLS_DST"
-cp "$SKILLS_SRC"/log:*.md "$SKILLS_DST/"
-echo "  ✓ Skills copied to $SKILLS_DST"
+# Remove old skills-based install if present
+if ls "$HOME/.claude/skills/log:"*.md 2>/dev/null | grep -q .; then
+  rm "$HOME/.claude/skills/log:"*.md
+  echo "  ✓ Removed old skill files from ~/.claude/skills/"
+fi
+
+# Copy commands
+mkdir -p "$COMMANDS_DST"
+cp "$COMMANDS_SRC"/*.md "$COMMANDS_DST/"
+echo "  ✓ Commands copied to $COMMANDS_DST"
 
 # Create log directory and next-id if absent
 mkdir -p "$LOG_DIR"

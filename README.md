@@ -84,7 +84,7 @@ your-project/
 ## Uninstall
 
 ```bash
-rm ~/.claude/skills/log:*.md
+rm -rf ~/.claude/commands/log/
 rm -rf ~/.claude/log/
 # Remove the session-start block from ~/.claude/CLAUDE.md
 # Delete .logproject files from your project roots
