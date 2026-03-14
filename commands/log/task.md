@@ -25,29 +25,20 @@ If this fails (exit code non-zero), stop and tell the user: "Not inside a git re
 ```bash
 REPO_ROOT=$(git rev-parse --show-toplevel)
 REPO_NAME=$(basename "$REPO_ROOT")
-
-# Walk up to find .logproject
-DIR="$REPO_ROOT"
-PROJECT_ROOT=""
-while [ "$DIR" != "/" ]; do
-  if [ -f "$DIR/.logproject" ]; then
-    PROJECT_ROOT="$DIR"
-    break
-  fi
-  DIR=$(dirname "$DIR")
-done
 ```
 
-If `PROJECT_ROOT` is empty, stop and tell the user: "No .logproject found. Run /log:init in your project root first."
+Run the project root helper and capture its stdout as `PROJECT_ROOT`:
+```bash
+~/.claude/commands/log/scripts/log-find-root.sh
+```
+
+If the script exits non-zero, stop and tell the user the error message it printed to stderr.
 
 ### 3. Get next ID
 
+Run the ID counter helper and capture its stdout as `ID`:
 ```bash
-NEXT_ID_FILE="$HOME/.claude/log/next-id"
-mkdir -p "$HOME/.claude/log"
-if [ ! -f "$NEXT_ID_FILE" ]; then echo "1" > "$NEXT_ID_FILE"; fi
-ID=$(cat "$NEXT_ID_FILE")
-echo $((ID + 1)) > "$NEXT_ID_FILE"
+~/.claude/commands/log/scripts/log-next-id.sh
 ```
 
 ### 4. Build the entry

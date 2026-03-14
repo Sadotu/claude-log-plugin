@@ -15,22 +15,12 @@ git rev-parse --show-toplevel 2>/dev/null
 
 If this fails, tell the user: "Not inside a git repository."
 
+Run the project root helper and capture its stdout as `PROJECT_ROOT`:
 ```bash
-REPO_ROOT=$(git rev-parse --show-toplevel)
-
-# Walk up to find .logproject
-DIR="$REPO_ROOT"
-PROJECT_ROOT=""
-while [ "$DIR" != "/" ]; do
-  if [ -f "$DIR/.logproject" ]; then
-    PROJECT_ROOT="$DIR"
-    break
-  fi
-  DIR=$(dirname "$DIR")
-done
+~/.claude/commands/log/scripts/log-find-root.sh
 ```
 
-If `PROJECT_ROOT` is empty, tell the user: "No .logproject found. Run /log:init in your project root first."
+If the script exits non-zero, tell the user the error message it printed to stderr.
 
 ```bash
 PROJECT_NAME=$(basename "$PROJECT_ROOT")

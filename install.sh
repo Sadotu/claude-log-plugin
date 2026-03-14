@@ -22,6 +22,33 @@ mkdir -p "$COMMANDS_DST"
 cp "$COMMANDS_SRC"/*.md "$COMMANDS_DST/"
 echo "  ✓ Commands copied to $COMMANDS_DST"
 
+# Copy helper scripts and ensure they are executable
+SCRIPTS_SRC="$COMMANDS_SRC/scripts"
+SCRIPTS_DST="$COMMANDS_DST/scripts"
+mkdir -p "$SCRIPTS_DST"
+cp "$SCRIPTS_SRC"/*.sh "$SCRIPTS_DST/"
+chmod +x "$SCRIPTS_DST"/*.sh
+echo "  ✓ Helper scripts installed to $SCRIPTS_DST"
+
+# Patch settings.json: add allow rule for helper scripts (idempotent)
+SETTINGS="$HOME/.claude/settings.json"
+ALLOW_RULE="Bash(~/.claude/commands/log/scripts/*)"
+if ! command -v jq &>/dev/null; then
+  echo ""
+  echo "  ⚠ jq not found. Add the following rule to ~/.claude/settings.json manually:"
+  echo "    under permissions.allow, add: \"$ALLOW_RULE\""
+elif [ ! -f "$SETTINGS" ]; then
+  echo "  ⚠ $SETTINGS not found. Add the following rule manually:"
+  echo "    under permissions.allow, add: \"$ALLOW_RULE\""
+else
+  if jq -e --arg rule "$ALLOW_RULE" '.permissions.allow // [] | index($rule) != null' "$SETTINGS" &>/dev/null; then
+    echo "  ✓ Allow rule already present in settings.json"
+  else
+    jq --arg rule "$ALLOW_RULE" '.permissions.allow += [$rule]' "$SETTINGS" > "$SETTINGS.tmp" && mv "$SETTINGS.tmp" "$SETTINGS"
+    echo "  ✓ Allow rule added to settings.json: $ALLOW_RULE"
+  fi
+fi
+
 # Create log directory and next-id if absent
 mkdir -p "$LOG_DIR"
 if [ ! -f "$LOG_DIR/next-id" ]; then
